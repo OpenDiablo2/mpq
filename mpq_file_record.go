@@ -1,4 +1,4 @@
-package d2mpq
+package mpq
 
 // MpqFileRecord represents a file record in an MPQ
 type MpqFileRecord struct {
