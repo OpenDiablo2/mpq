@@ -1,2 +1,2 @@
-// Package d2mpq contains the functions for handling MPQ files.
-package d2mpq
+// Package mpq contains the functions for handling MPQ files.
+package mpq

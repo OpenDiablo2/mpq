@@ -1,4 +1,4 @@
-package d2mpq
+package mpq
 
 import (
 	"bufio"
