@@ -4,17 +4,14 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2interface"
 )
-
-var _ d2interface.Archive = &MPQ{} // Static check to confirm struct conforms to interface
 
 // MPQ represents an MPQ archive
 type MPQ struct {
@@ -115,7 +112,7 @@ func (mpq *MPQ) ReadFile(fileName string) ([]byte, error) {
 }
 
 // ReadFileStream reads the mpq file data and returns a stream
-func (mpq *MPQ) ReadFileStream(fileName string) (d2interface.DataStream, error) {
+func (mpq *MPQ) ReadFileStream(fileName string) (io.ReadSeekCloser, error) {
 	fileBlockData, err := mpq.getFileBlockData(fileName)
 	if err != nil {
 		return nil, err
@@ -128,7 +125,7 @@ func (mpq *MPQ) ReadFileStream(fileName string) (d2interface.DataStream, error) 
 		return nil, err
 	}
 
-	return &MpqDataStream{stream: stream}, nil
+	return &DataStream{stream: stream}, nil
 }
 
 // ReadTextFile reads a file and returns it as a string
