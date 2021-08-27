@@ -1,4 +1,4 @@
-package mpq
+package pkg
 
 // FileRecord represents a file record in an MPQ
 type FileRecord struct {
