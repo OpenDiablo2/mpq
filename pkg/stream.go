@@ -1,4 +1,4 @@
-package mpq
+package pkg
 
 import (
 	"bytes"
@@ -10,8 +10,7 @@ import (
 
 	"github.com/JoshVarga/blast"
 
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2data/d2compression"
-	"github.com/OpenDiablo2/OpenDiablo2/d2common/d2math"
+	wav "github.com/OpenDiablo2/wav/pkg"
 )
 
 // Stream represents a stream of data in an MPQ archive
@@ -125,8 +124,16 @@ func (v *Stream) readInternal(buffer []byte, offset, count uint32) (uint32, erro
 	return v.copy(buffer, offset, localPosition, count)
 }
 
+func min(a, b uint32) uint32 {
+	if a < b {
+		return a
+	}
+
+	return b
+}
+
 func (v *Stream) copy(buffer []byte, offset, pos, count uint32) (uint32, error) {
-	bytesToCopy := d2math.Min(uint32(len(v.Data))-pos, count)
+	bytesToCopy := min(uint32(len(v.Data))-pos, count)
 	if bytesToCopy <= 0 {
 		return 0, io.EOF
 	}
@@ -144,7 +151,7 @@ func (v *Stream) bufferData() (err error) {
 		return nil
 	}
 
-	expectedLength := d2math.Min(v.Block.UncompressedFileSize-(blockIndex*v.Size), v.Size)
+	expectedLength := min(v.Block.UncompressedFileSize-(blockIndex*v.Size), v.Size)
 	if v.Data, err = v.loadBlock(blockIndex, expectedLength); err != nil {
 		return err
 	}
@@ -237,9 +244,9 @@ func decompressMulti(data []byte /*expectedLength*/, _ uint32) ([]byte, error) {
 	case 0x10: // BZip2
 		return []byte{}, errors.New("bzip2 decompression not supported")
 	case 0x80: // IMA ADPCM Stereo
-		return d2compression.WavDecompress(data[1:], 2)
+		return wav.WavDecompress(data[1:], 2)
 	case 0x40: // IMA ADPCM Mono
-		return d2compression.WavDecompress(data[1:], 1)
+		return wav.WavDecompress(data[1:], 1)
 	case 0x12:
 		return []byte{}, errors.New("lzma decompression not supported")
 	// Combos
@@ -250,7 +257,7 @@ func decompressMulti(data []byte /*expectedLength*/, _ uint32) ([]byte, error) {
 		// sparse then bzip2
 		return []byte{}, errors.New("sparse decompression + bzip2 decompression not supported")
 	case 0x41:
-		sinput, err := d2compression.WavDecompress(d2compression.HuffmanDecompress(data[1:]), 1)
+		sinput, err := wav.WavDecompress(wav.HuffmanDecompress(data[1:]), 1)
 		if err != nil {
 			return nil, err
 		}
@@ -265,7 +272,7 @@ func decompressMulti(data []byte /*expectedLength*/, _ uint32) ([]byte, error) {
 		// return MpqWavCompression.Decompress(new MemoryStream(result), 1);
 		return []byte{}, errors.New("pk + mpqwav decompression not supported")
 	case 0x81:
-		sinput, err := d2compression.WavDecompress(d2compression.HuffmanDecompress(data[1:]), 2)
+		sinput, err := wav.WavDecompress(wav.HuffmanDecompress(data[1:]), 2)
 		if err != nil {
 			return nil, err
 		}

@@ -1,2 +1,2 @@
 // Package mpq contains the functions for handling MPQ files.
-package mpq
+package pkg

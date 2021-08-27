@@ -1,4 +1,4 @@
-package mpq
+package pkg
 
 import (
 	"io"
