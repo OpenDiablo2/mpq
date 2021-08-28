@@ -1,5 +1,9 @@
 package pkg
 
+import (
+	"io"
+)
+
 // DataStream represents a stream for MPQ data.
 type DataStream struct {
 	stream *Stream
@@ -13,7 +17,15 @@ func (m *DataStream) Read(p []byte) (n int, err error) {
 
 // Seek sets the position of the data stream
 func (m *DataStream) Seek(offset int64, whence int) (int64, error) {
-	m.stream.Position = uint32(offset + int64(whence))
+	switch whence {
+	case io.SeekStart:
+		m.stream.Position = uint32(offset)
+	case io.SeekEnd:
+		m.stream.Position = uint32(m.stream.Size) - uint32(offset)
+	case io.SeekCurrent:
+		m.stream.Position += uint32(offset)
+	}
+
 	return int64(m.stream.Position), nil
 }
 
